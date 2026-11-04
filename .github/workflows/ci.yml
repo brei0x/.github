@@ -14,7 +14,7 @@ env:
 
 jobs:
   verify:
-    name: Verify (issue forms · Dependabot schema)
+    name: Checks (issue forms · Dependabot config)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -28,15 +28,26 @@ jobs:
       - run: pipx run "$CHECK_JSONSCHEMA" --builtin-schema vendor.github-issue-config .github/ISSUE_TEMPLATE/config.yml
       - run: pipx run "$CHECK_JSONSCHEMA" --builtin-schema vendor.dependabot .github/dependabot.yml
 
-  automerge:
+  # The one check Trunk Merge Flow requires, same name everywhere. always(): a job skipped after a
+  # failed need reports success. Pull requests only: no ruleset reads it on a push.
+  ci-passed:
+    name: CI passed
     needs: [verify]
+    if: ${{ always() && github.event_name == 'pull_request' }}
+    runs-on: ubuntu-slim
+    steps:
+      - if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
+
+  automerge:
+    needs: [ci-passed]
     if: ${{ !cancelled() && github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]' }}
     uses: tekalib/.workflows/.github/workflows/dependabot-automerge.yml@79652356f97a6498d41d9453be523099e53a7b93 # v1.2.0
     permissions:
       contents: read
       pull-requests: read
     with:
-      ci-passed: ${{ !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+      ci-passed: ${{ needs.ci-passed.result == 'success' }}
     secrets:
       app-key: ${{ secrets.AUTOMATION_APP_KEY }}
 
