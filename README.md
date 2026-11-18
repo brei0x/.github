@@ -9,6 +9,8 @@ that does not define its own.
   <a href="https://github.com/brei0x/.github/releases/latest"><img src="https://img.shields.io/github/v/release/brei0x/.github?sort=semver" alt="Latest release"></a>
 </p>
 
+---
+
 The profile page itself lives in [brei0x/brei0x](https://github.com/brei0x/brei0x).
 
 ## Security
