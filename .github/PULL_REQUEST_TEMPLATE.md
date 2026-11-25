@@ -6,7 +6,8 @@
 
 ## Why
 
-<!-- `Closes #12`: merging into the default branch closes the linked issue. -->
+<!-- `Closes #12`. GitHub honours the keyword only on pull requests targeting the default
+     branch; on `develop` the linked issue is closed from the branch name instead. -->
 
 ## Checks
 

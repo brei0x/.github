@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      # Every repository of the account inherits these forms: a broken one silently
+      # Every repository of the owner inherits these forms: a broken one silently
       # falls back to a blank issue everywhere.
       - run: >-
           find .github/ISSUE_TEMPLATE -name '*.yml' ! -name config.yml
@@ -28,12 +28,12 @@ jobs:
       - run: pipx run "$CHECK_JSONSCHEMA" --builtin-schema vendor.github-issue-config .github/ISSUE_TEMPLATE/config.yml
       - run: pipx run "$CHECK_JSONSCHEMA" --builtin-schema vendor.dependabot .github/dependabot.yml
 
-  # The one check Trunk Merge Flow requires, same name everywhere. always(): a job skipped after a
-  # failed need reports success. Pull requests only: no ruleset reads it on a push.
+  # The one check the Trunk Merge Flow ruleset requires, same name in every repository: it needs
+  # every other job. always(), because a job skipped after a failed need reports success.
   ci-passed:
     name: CI passed
     needs: [verify]
-    if: ${{ always() && github.event_name == 'pull_request' }}
+    if: always()
     runs-on: ubuntu-slim
     steps:
       - if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
